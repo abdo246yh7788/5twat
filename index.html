@@ -93,33 +93,10 @@
             max-width: 600px;
         }
 
-        /* --- حاوية الشعار المفرغ المتجاوبة --- */
-        .mosque-logo-container {
-            width: clamp(150px, 35vw, 250px); 
-            height: clamp(150px, 35vw, 250px);
-            background-color: transparent; 
-            border: none; 
-            margin: 0 auto 10px auto;
-            display: flex; justify-content: center; align-items: center;
-            position: relative;
-        }
-        .mosque-logo-img {
-            width: 100%; height: 100%;
-            object-fit: contain; 
-            /* تأثير توهج للشعار المفرغ */
-            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.4));
-            animation: pulseImg 3s infinite alternate;
-        }
-        
-        @keyframes pulseImg {
-            0% { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.2)); transform: scale(1); }
-            100% { filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.7)); transform: scale(1.03); }
-        }
-
         /* خطوط متجاوبة مع كل الشاشات */
         .main-title {
             font-size: clamp(2.5rem, 8vw, 4.5rem);
-            margin: 0 0 10px 0;
+            margin: 0 0 30px 0;
             color: var(--text-main);
             text-shadow: 0 4px 15px rgba(0,0,0,0.8);
             letter-spacing: 1px;
@@ -127,13 +104,6 @@
         .main-title span {
             color: var(--accent-gold);
             text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-        }
-        .sub-title {
-            font-size: clamp(1.1rem, 4vw, 1.6rem);
-            color: #cbd5e1;
-            margin-bottom: clamp(30px, 6vw, 50px);
-            font-weight: 300;
-            text-shadow: 0 2px 5px #000;
         }
 
         .btn-container {
@@ -208,17 +178,6 @@
             justify-content: flex-start; align-items: center; 
             overflow-y: auto; overflow-x: hidden;
         }
-        
-        /* الشعار في زاوية المضمار */
-        .corner-logo {
-            position: absolute;
-            top: 20px; left: 20px; 
-            width: clamp(60px, 8vw, 110px);
-            height: clamp(60px, 8vw, 110px);
-            object-fit: contain;
-            z-index: 100;
-            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4));
-        }
 
         .back-btn {
             position: absolute; top: 20px; right: 20px; background: var(--card-bg); color: var(--text-main);
@@ -281,6 +240,37 @@
         #victory-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: clamp(20px, 5vw, 40px); border-radius: 20px; border: 3px solid var(--accent-gold); z-index: 2000; text-align: center; width: 90%; max-width: 400px; }
 
         /* ========================================= */
+        /* 📋 نافذة بنود التقييم 📋 */
+        /* ========================================= */
+        .info-btn {
+            position: fixed; bottom: 20px; left: 20px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+            color: #000; border: none; padding: 10px 20px; border-radius: 30px;
+            font-weight: bold; font-size: 1rem; cursor: pointer; z-index: 1500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; transition: transform 0.3s;
+        }
+        .info-btn:hover { transform: scale(1.05); }
+
+        #criteria-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); z-index: 3000; justify-content: center; align-items: center;
+            padding: 20px; backdrop-filter: blur(5px);
+        }
+        .criteria-content {
+            background: var(--card-bg); border: 2px solid var(--accent-gold); border-radius: 15px;
+            width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 25px;
+            color: var(--text-main); box-shadow: 0 10px 30px rgba(0,0,0,0.7); position: relative;
+        }
+        .criteria-content h2 { color: var(--accent-gold); text-align: center; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .criteria-section { margin-bottom: 20px; background: #111827; padding: 15px; border-radius: 10px; border-right: 4px solid var(--accent-gold); }
+        .criteria-section h3 { margin: 0 0 10px 0; color: #fbbf24; font-size: 1.1rem; }
+        .criteria-list { list-style: none; padding: 0; margin: 0; }
+        .criteria-list li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #334155; font-size: 0.9rem; }
+        .criteria-list li:last-child { border-bottom: none; }
+        .criteria-pts { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+        .close-modal-btn { position: absolute; top: 15px; left: 15px; background: transparent; color: #ef4444; border: none; font-size: 1.5rem; cursor: pointer; line-height: 1; }
+
+        /* ========================================= */
         /* 📱 التوافق التام مع الجوال (Mobile) 📱 */
         /* ========================================= */
         @media (max-width: 768px) {
@@ -298,7 +288,7 @@
             .row { gap: 4px; }
             .square { border-radius: 6px; }
             .back-btn { top: 10px; right: 10px; padding: 5px 10px; font-size: 0.8rem; }
-            .corner-logo { top: 10px; left: 10px; width: 50px; height: 50px; }
+            .info-btn { bottom: 10px; left: 10px; padding: 8px 15px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -317,12 +307,7 @@
         <div class="sparks" id="sparks-container"></div>
 
         <div class="landing-content">
-            <div class="mosque-logo-container">
-                <!-- 🌟 تم استخدام الصورة المحلية، تذكر وضع ملف logo.png بجانب هذا الملف! 🌟 -->
-                <img src="logo.png" alt="شعار أمهات المؤمنين (تأكد من وجود صورة logo.png بجوار الملف)" class="mosque-logo-img">
-            </div>
             <h1 class="main-title">خطوات <span>القمة</span></h1>
-            <p class="sub-title">تنافس، ارتقِ، وكن في الطليعة</p>
             
             <div class="btn-container">
                 <button class="entry-btn" onclick="startIndividual()">التنافس الفردي 🏃‍♂️</button>
@@ -340,9 +325,6 @@
         </div>
 
         <div class="main-content">
-            <!-- 🌟 الشعار المفرغ في زاوية الشاشة 🌟 -->
-            <img src="logo.png" alt="شعار المسجد (تأكد من وجود صورة logo.png بجوار الملف)" class="corner-logo">
-            
             <button class="back-btn" onclick="goBackToHome()">🏠 العودة للرئيسية</button>
             
             <!-- 🌟 عنوان الخريطة المرتفع للأعلى 🌟 -->
@@ -357,6 +339,51 @@
         <div id="victory-box">
             <h1 id="winner-msg" style="color: var(--accent-gold);">🏆 فوز البطل 🏆</h1>
             <button onclick="document.getElementById('victory-box').style.display='none'" style="padding:10px 30px; cursor:pointer; background:var(--accent-gold); border:none; border-radius:8px; font-weight:bold; font-size: 1.1rem; width: 100%;">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- زر عرض البنود (يظهر في جميع الشاشات) -->
+    <button class="info-btn" onclick="document.getElementById('criteria-modal').style.display='flex'">📋 بنود التقييم</button>
+
+    <!-- نافذة بنود التقييم -->
+    <div id="criteria-modal">
+        <div class="criteria-content">
+            <button class="close-modal-btn" onclick="document.getElementById('criteria-modal').style.display='none'">✖</button>
+            <h2>بنود التقييم الفردية للطلاب</h2>
+            
+            <div class="criteria-section">
+                <h3>📖 البنود القرآنية</h3>
+                <ul class="criteria-list">
+                    <li><span>حضور</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>تثبيت</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>حفظ</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>مراجعة</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>السمت (الشماغ)</span> <span class="criteria-pts">3 نقاط</span></li>
+                    <li><span>الحضور المبكر</span> <span class="criteria-pts">2 نقاط</span></li>
+                    <li><span>الانتهاء من ورد الأسبوع</span> <span class="criteria-pts">10 نقاط</span></li>
+                </ul>
+            </div>
+
+            <div class="criteria-section">
+                <h3>🌟 البنود القيمية</h3>
+                <ul class="criteria-list">
+                    <li><span>قراءة</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>سماع</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>مشاركة فائدة في الدرس</span> <span class="criteria-pts">3 نقاط</span></li>
+                    <li><span>إحضار الكناشة</span> <span class="criteria-pts">3 نقاط</span></li>
+                    <li><span>تلخيص الدرس</span> <span class="criteria-pts">4 نقاط</span></li>
+                    <li><span>الحضور بزي طالب العلم</span> <span class="criteria-pts">5 نقاط</span></li>
+                </ul>
+            </div>
+
+            <div class="criteria-section">
+                <h3>📚 البنود العلمية (بنود اللجنة)</h3>
+                <ul class="criteria-list">
+                    <li><span>حضور الدرس</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>اختبار</span> <span class="criteria-pts">5 نقاط</span></li>
+                    <li><span>حل الاستبيان</span> <span class="criteria-pts">5 نقاط</span></li>
+                </ul>
+            </div>
         </div>
     </div>
 
