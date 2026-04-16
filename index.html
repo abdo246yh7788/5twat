@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خطوات القمة - أبعاد مثالية للابتوب والجوال</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>خطوات القمة - بوابة الدخول</title>
     <style>
         * { box-sizing: border-box; }
 
@@ -11,159 +11,416 @@
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --accent-gold: #fbbf24;
+            --accent-gold-dark: #b45309;
             --text-main: #f8fafc;
-            
-            /* 🌟 تم إزالة الحد الأقصى المزعج! هذه المعادلة تضمن أكبر حجم ممكن للمربع مع ترك مسافة آمنة (هوامش) من الجوانب 🌟 */
-            --sq-size: min(12vh, calc((100vw - 600px) / 12)); 
+            /* حساب ديناميكي لحجم المربع للشاشات الكبيرة */
+            --sq-size: min(12vh, calc((100vw - 520px) / 10)); 
         }
 
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-color); 
             color: var(--text-main); 
-            margin: 0; display: flex; height: 100vh; overflow: hidden; 
-            flex-direction: row; 
+            margin: 0; 
+            height: 100vh; 
+            overflow: hidden; 
         }
 
-        /* --- القائمة الجانبية --- */
+        /* ========================================= */
+        /* 🚀 واجهة الدخول الرئيسية المستوحاة من القمة 🚀 */
+        /* ========================================= */
+        #landing-page {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #0f172a 0%, #1e293b 100%);
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* --- تصميم القمم الجبلية في الخلفية --- */
+        .mountain-bg {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .peak-1 {
+            position: absolute; bottom: -10%; left: -10%; width: 60%; height: 50%;
+            background: linear-gradient(to top right, #020617, #1e293b);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            opacity: 0.8;
+        }
+        .peak-2 {
+            position: absolute; bottom: -5%; right: -5%; width: 60%; height: 45%;
+            background: linear-gradient(to top left, #020617, #334155);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            opacity: 0.6;
+        }
+        .peak-3 {
+            position: absolute; bottom: 0; left: 15%; width: 70%; height: 35%;
+            background: linear-gradient(to top, #fbbf2422, #b4530911);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            opacity: 0.9;
+        }
+
+        /* --- تأثير الشرارات الذهبية المتصاعدة --- */
+        .sparks {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; z-index: 1;
+        }
+        .spark {
+            position: absolute; bottom: -10px;
+            width: 5px; height: 5px; background: var(--accent-gold);
+            border-radius: 50%; box-shadow: 0 0 12px 2px var(--accent-gold);
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+        }
+
+        .landing-content {
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUP 1s ease-out forwards;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* --- حاوية الشعار المفرغ المتجاوبة --- */
+        .mosque-logo-container {
+            width: clamp(150px, 35vw, 250px); 
+            height: clamp(150px, 35vw, 250px);
+            background-color: transparent; 
+            border: none; 
+            margin: 0 auto 10px auto;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+        }
+        .mosque-logo-img {
+            width: 100%; height: 100%;
+            object-fit: contain; 
+            /* تأثير توهج للشعار المفرغ */
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.4));
+            animation: pulseImg 3s infinite alternate;
+        }
+        
+        @keyframes pulseImg {
+            0% { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.2)); transform: scale(1); }
+            100% { filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.7)); transform: scale(1.03); }
+        }
+
+        /* خطوط متجاوبة مع كل الشاشات */
+        .main-title {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            margin: 0 0 10px 0;
+            color: var(--text-main);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+        .main-title span {
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+        .sub-title {
+            font-size: clamp(1.1rem, 4vw, 1.6rem);
+            color: #cbd5e1;
+            margin-bottom: clamp(30px, 6vw, 50px);
+            font-weight: 300;
+            text-shadow: 0 2px 5px #000;
+        }
+
+        .btn-container {
+            display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;
+        }
+
+        .entry-btn {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+            color: #000; border: none; 
+            padding: clamp(10px, 3vw, 15px) clamp(20px, 5vw, 40px); 
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem); 
+            font-weight: bold; border-radius: 50px; cursor: pointer; 
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.4);
+            transition: all 0.3s ease; position: relative; overflow: hidden; 
+            flex: 1; min-width: 200px; max-width: 300px;
+        }
+
+        .entry-btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: rgba(255,255,255,0.2); transform: rotate(45deg); transition: all 0.3s ease; opacity: 0;
+        }
+
+        .entry-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px rgba(251, 191, 36, 0.6); }
+        .entry-btn:hover::after { opacity: 1; left: 100%; transition: left 0.7s ease; }
+
+        .entry-btn.group-btn {
+            background: #1e293b; color: var(--accent-gold); border: 2px solid var(--accent-gold);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .entry-btn.group-btn:hover { background: rgba(251, 191, 36, 0.1); }
+
+        @keyframes fadeInUP {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========================================= */
+        /* 🏁 شاشة السباق الرئيسية 🏁 */
+        /* ========================================= */
+        #game-board {
+            display: none; width: 100%; height: 100%; flex-direction: row;
+            opacity: 0; transition: opacity 0.8s ease-in;
+        }
+
+        /* --- القائمة الجانبية للابتوب --- */
         .sidebar {
-            width: 480px; 
+            width: clamp(300px, 30vw, 480px); 
             background: #111827; border-left: 2px solid #334155;
             display: flex; flex-direction: column; padding: 15px;
             box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 10;
         }
-        .sidebar h2 { color: var(--accent-gold); font-size: 1.2rem; text-align: center; margin-bottom: 5px; border-bottom: 2px solid #334155; padding-bottom: 10px; }
-        
+        .sidebar h2 { color: var(--accent-gold); font-size: clamp(1rem, 2vw, 1.2rem); text-align: center; margin-bottom: 5px; border-bottom: 2px solid #334155; padding-bottom: 10px; }
         #sync-status { text-align: center; font-size: 0.85rem; margin-bottom: 15px; color: #fbbf24; font-weight: bold; background: #1e293b; padding: 6px; border-radius: 6px; }
 
         #leaders-list { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-            gap: 6px; 
-            align-content: start; overflow-y: auto; padding-right: 5px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 6px; align-content: start; overflow-y: auto; padding-right: 5px;
         }
 
         .leader-card {
             display: flex; align-items: center; background: #1f2937;
-            padding: 6px 10px; border-radius: 8px; border-right: 4px solid transparent; 
+            padding: 6px 8px; border-radius: 8px; border-right: 4px solid transparent; 
             font-size: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-
-        .leader-info { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 85px; }
+        .leader-info { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px; }
 
         /* --- منطقة المضمار --- */
         .main-content { 
             flex-grow: 1; display: flex; flex-direction: column; 
-            /* تم إضافة حواف جانبية ثابتة (40px) لضمان عدم الالتصاق بالشاشة */
-            padding: 20px 40px; 
-            position: relative; justify-content: center; overflow: hidden;
+            padding: 30px 15px 15px 15px; 
+            position: relative; 
+            justify-content: flex-start; align-items: center; 
+            overflow-y: auto; overflow-x: hidden;
         }
         
-        h1 { text-align: center; color: var(--accent-gold); margin: 0 0 15px 0; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        /* الشعار في زاوية المضمار */
+        .corner-logo {
+            position: absolute;
+            top: 20px; left: 20px; 
+            width: clamp(60px, 8vw, 110px);
+            height: clamp(60px, 8vw, 110px);
+            object-fit: contain;
+            z-index: 100;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4));
+        }
 
-        .board-container { display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; }
+        .back-btn {
+            position: absolute; top: 20px; right: 20px; background: var(--card-bg); color: var(--text-main);
+            border: 1px solid #334155; padding: 8px 15px; border-radius: 8px;
+            cursor: pointer; z-index: 100; font-size: 0.9rem; transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--accent-gold); color: #000; }
+
+        /* تعديل: رفع العنوان للأعلى بزيادة المساحة السفلية */
+        .board-header {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: clamp(50px, 10vh, 100px); /* 🌟 زيادة المسافة ليرتفع الكلام عن المضمار 🌟 */
+        }
+        .board-header h1 { 
+            text-align: center; color: var(--accent-gold); margin: 0; 
+            font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 2px 4px rgba(0,0,0,0.5); 
+        }
+
+        .board-container { 
+            display: flex; flex-direction: column; gap: 6px; 
+            align-items: center; justify-content: center; padding-bottom: 20px;
+            margin-top: auto; margin-bottom: auto;
+        }
         .row { display: flex; gap: 6px; }
         .row.reverse { flex-direction: row-reverse; }
 
         .square { 
-            width: var(--sq-size); height: var(--sq-size);
-            background: var(--card-bg); border: 1px solid #334155; 
-            position: relative; border-radius: 8px; display: flex; 
-            flex-direction: column; align-items: center; justify-content: center;
-            overflow: hidden; 
+            width: var(--sq-size); height: var(--sq-size); background: var(--card-bg); 
+            border: 1px solid #334155; position: relative; border-radius: 8px; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; overflow: hidden; 
         }
         
-        .square-num { 
-            font-weight: bold; font-size: 0.8rem; color: var(--accent-gold); 
-            position: absolute; top: 4px; right: 6px; z-index: 3; 
-        }
+        .square-num { font-weight: bold; font-size: clamp(0.6rem, 2vw, 0.8rem); color: var(--accent-gold); position: absolute; top: 4px; right: 6px; z-index: 3; }
 
-        /* 🌟 المحطات الخاصة 🌟 */
+        /* 🌟 المحطات الخاصة (كل 10 مربعات) 🌟 */
         .special-station { 
-            background: linear-gradient(135deg, #1e293b, #2c2205);
-            border: 2px solid var(--accent-gold); 
+            background: linear-gradient(135deg, #1e293b, #2c2205); border: 2px solid var(--accent-gold); 
             box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.2), 0 0 8px rgba(251, 191, 36, 0.4); 
         }
-        
-        .special-station .square-num { text-shadow: 0 0 8px rgba(251, 191, 36, 1); }
-
+        .special-station .square-num { text-shadow: 0 0 8px rgba(251, 191, 36, 1); font-size: clamp(0.7rem, 2.5vw, 1rem); }
         .bg-star {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            /* حجم النجمة مرتبط بحجم المربع برمجياً لتبقى متناسقة دائماً */
-            font-size: calc(var(--sq-size) * 0.7); 
-            color: var(--accent-gold); opacity: 0.15; pointer-events: none; z-index: 1;
+            font-size: calc(var(--sq-size) * 0.7); color: var(--accent-gold); opacity: 0.15; pointer-events: none; z-index: 1;
         }
 
         .players-holder {
-            display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
+            display: flex; flex-wrap: wrap; gap: 2px; justify-content: center;
             align-content: center; width: 100%; height: 100%; padding-top: 15px; z-index: 2; 
         }
 
         .player-dot {
-            width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5);
+            width: clamp(14px, 3vw, 18px); height: clamp(14px, 3vw, 18px); border-radius: 50%; border: 1px solid rgba(255,255,255,0.5);
             box-shadow: 0 1px 4px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 0.65rem; transition: transform 0.3s;
+            color: white; font-weight: bold; font-size: clamp(0.5rem, 1.5vw, 0.65rem); transition: transform 0.3s;
         }
         .player-dot:hover { transform: scale(1.3); cursor: pointer; }
 
         .finish { background: linear-gradient(45deg, #059669, #10b981); border: none; }
-        #victory-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: 40px; border-radius: 20px; border: 3px solid var(--accent-gold); z-index: 2000; text-align: center; width: 90%; max-width: 400px; }
+        #victory-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: clamp(20px, 5vw, 40px); border-radius: 20px; border: 3px solid var(--accent-gold); z-index: 2000; text-align: center; width: 90%; max-width: 400px; }
 
         /* ========================================= */
-        /* 📱 إعدادات شاشات الجوال (Mobile Responsive)📱 */
+        /* 📱 التوافق التام مع الجوال (Mobile) 📱 */
         /* ========================================= */
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
+            #game-board { flex-direction: column; }
+            .sidebar { 
+                width: 100%; height: 30vh; border-left: none; 
+                border-bottom: 3px solid var(--accent-gold); padding: 10px; 
             }
-            .sidebar {
-                width: 100%; 
-                height: 35vh; 
-                border-left: none; 
-                border-bottom: 3px solid #334155; 
-                padding: 10px;
+            .main-content { justify-content: flex-start; }
+            :root { 
+                --sq-size: calc((100vw - 30px) / 5); 
             }
-            .main-content {
-                justify-content: flex-start; 
-                padding: 10px;
-                overflow-y: auto;
-            }
-            h1 { font-size: 1.4rem; margin-bottom: 5px; }
-            :root {
-                --sq-size: calc((100vw - 40px) / 6); 
-            }
-            .board-container { gap: 4px; padding-bottom: 30px; }
+            .board-header { margin-top: 50px; margin-bottom: 30px; } /* رفع العنوان في الجوال أيضاً */
+            .board-container { gap: 4px; padding-bottom: 20px; margin-top: 0; }
             .row { gap: 4px; }
             .square { border-radius: 6px; }
-            .square-num { font-size: 0.7rem; top: 2px; right: 4px; }
-            .player-dot {
-                width: 15px; height: 15px; 
-                font-size: 0.55rem;
-            }
+            .back-btn { top: 10px; right: 10px; padding: 5px 10px; font-size: 0.8rem; }
+            .corner-logo { top: 10px; left: 10px; width: 50px; height: 50px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>🏆 الترتيب المباشر</h2>
-        <div id="sync-status">⏳ جاري الاتصال بالملف...</div>
-        <div id="leaders-list"></div>
+    <!-- 🚀 واجهة الدخول 🚀 -->
+    <div id="landing-page">
+        <!-- طبقة الجبال الخلفية -->
+        <div class="mountain-bg">
+            <div class="peak-1"></div>
+            <div class="peak-2"></div>
+            <div class="peak-3"></div>
+        </div>
+        
+        <!-- طبقة الشرارات الذهبية -->
+        <div class="sparks" id="sparks-container"></div>
+
+        <div class="landing-content">
+            <div class="mosque-logo-container">
+                <!-- 🌟 تم استخدام الصورة المحلية، تذكر وضع ملف logo.png بجانب هذا الملف! 🌟 -->
+                <img src="logo.png" alt="شعار أمهات المؤمنين (تأكد من وجود صورة logo.png بجوار الملف)" class="mosque-logo-img">
+            </div>
+            <h1 class="main-title">خطوات <span>القمة</span></h1>
+            <p class="sub-title">تنافس، ارتقِ، وكن في الطليعة</p>
+            
+            <div class="btn-container">
+                <button class="entry-btn" onclick="startIndividual()">التنافس الفردي 🏃‍♂️</button>
+                <button class="entry-btn group-btn" onclick="startGroup()">التنافس الجماعي 👥</button>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
-        <h1>خطوات القمة</h1>
-        <div class="board-container" id="board-container"></div>
-    </div>
+    <!-- 🏁 شاشة السباق (المخفية) 🏁 -->
+    <div id="game-board">
+        <div class="sidebar">
+            <h2>🏆 الترتيب المباشر (فردي)</h2>
+            <div id="sync-status">⏳ جاري الاتصال بالملف...</div>
+            <div id="leaders-list"></div>
+        </div>
 
-    <div id="victory-box">
-        <h1 id="winner-msg" style="color: var(--accent-gold);">🏆 فوز البطل 🏆</h1>
-        <button onclick="document.getElementById('victory-box').style.display='none'" style="padding:10px 30px; cursor:pointer; background:var(--accent-gold); border:none; border-radius:8px; font-weight:bold; font-size: 1.1rem; width: 100%;">إغلاق</button>
+        <div class="main-content">
+            <!-- 🌟 الشعار المفرغ في زاوية الشاشة 🌟 -->
+            <img src="logo.png" alt="شعار المسجد (تأكد من وجود صورة logo.png بجوار الملف)" class="corner-logo">
+            
+            <button class="back-btn" onclick="goBackToHome()">🏠 العودة للرئيسية</button>
+            
+            <!-- 🌟 عنوان الخريطة المرتفع للأعلى 🌟 -->
+            <div class="board-header">
+                <h1>خطوات القمة</h1>
+            </div>
+            
+            <!-- المضمار المتمركز بالمنتصف -->
+            <div class="board-container" id="board-container"></div>
+        </div>
+
+        <div id="victory-box">
+            <h1 id="winner-msg" style="color: var(--accent-gold);">🏆 فوز البطل 🏆</h1>
+            <button onclick="document.getElementById('victory-box').style.display='none'" style="padding:10px 30px; cursor:pointer; background:var(--accent-gold); border:none; border-radius:8px; font-weight:bold; font-size: 1.1rem; width: 100%;">إغلاق</button>
+        </div>
     </div>
 
     <script>
+        // --- توليد شرارات الصعود المتحركة ---
+        const sparksContainer = document.getElementById('sparks-container');
+        const sparkCount = window.innerWidth <= 768 ? 20 : 40; 
+        for(let i=0; i<sparkCount; i++) {
+            let spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.style.left = Math.random() * 100 + '%';
+            spark.style.animationDuration = (Math.random() * 4 + 3) + 's';
+            spark.style.animationDelay = (Math.random() * 5) + 's';
+            sparksContainer.appendChild(spark);
+        }
+
         // ==========================================================
-        // ⚙️ منطقة الإعدادات 
+        // 🎮 التحكم بالشاشات 🎮
+        // ==========================================================
+        let syncInterval; 
+
+        function startIndividual() {
+            const landing = document.getElementById('landing-page');
+            const gameBoard = document.getElementById('game-board');
+            
+            landing.style.transform = 'scale(1.1)';
+            landing.style.opacity = '0';
+            
+            setTimeout(() => {
+                landing.style.display = 'none';
+                gameBoard.style.display = 'flex';
+                setTimeout(() => {
+                    gameBoard.style.opacity = '1';
+                    initBoard(); 
+                    fetchSheetData(); 
+                    syncInterval = setInterval(fetchSheetData, 4000); 
+                }, 50);
+            }, 800);
+        }
+
+        function startGroup() {
+            alert("🚀 التنافس الجماعي قيد التطوير وسيتم إضافته قريباً!");
+        }
+
+        function goBackToHome() {
+            const landing = document.getElementById('landing-page');
+            const gameBoard = document.getElementById('game-board');
+            
+            clearInterval(syncInterval);
+            
+            gameBoard.style.opacity = '0';
+            
+            setTimeout(() => {
+                gameBoard.style.display = 'none';
+                landing.style.display = 'flex';
+                setTimeout(() => {
+                    landing.style.opacity = '1';
+                    landing.style.transform = 'scale(1)';
+                }, 50);
+            }, 800);
+        }
+
+        // ==========================================================
+        // ⚙️ منطقة إعدادات الربط بملف الإكسل 
         // ==========================================================
         const SHEET_ID = "1QZ6_ZPyBkxycL7nk3JaDOyOGEQiSCyGhZrnCCXyUp78"; 
         const GID = "1952609688"; 
@@ -173,10 +430,9 @@
         
         const POINTS_PER_SQUARE = 13;      
         const totalPlayers = 44;           
-        const totalSquares = 84;           
+        const totalSquares = 50;           
         
-        // 📱 تقنية ذكية: 6 مربعات للجوال، 12 للكمبيوتر
-        const squaresPerRow = window.innerWidth <= 768 ? 6 : 12;          
+        const squaresPerRow = window.innerWidth <= 768 ? 5 : 10;          
         // ==========================================================
 
         function getColIndex(letter) {
@@ -198,7 +454,7 @@
 
         function initBoard() {
             const container = document.getElementById('board-container');
-            container.innerHTML = ""; 
+            if(container.innerHTML !== "") return; 
 
             for (let r = 0; r < Math.ceil(totalSquares / squaresPerRow); r++) {
                 const rowDiv = document.createElement('div');
@@ -208,7 +464,7 @@
                     const sqNum = r * squaresPerRow + c + 1;
                     if (sqNum > totalSquares) break;
 
-                    const isSpecial = (sqNum % 9 === 0 && sqNum < totalSquares);
+                    const isSpecial = (sqNum % 10 === 0 && sqNum < totalSquares);
                     const sq = document.createElement('div');
                     sq.className = `square ${sqNum === totalSquares ? 'finish' : ''} ${isSpecial ? 'special-station' : ''}`;
                     sq.id = `sq-${sqNum}`;
@@ -227,6 +483,9 @@
             }
         }
 
+        // ==========================================================
+        // 🌐 تقنية (JSONP) الآمنة تعمل على اللابتوب والجوال
+        // ==========================================================
         function fetchSheetData() {
             const script = document.createElement('script');
             const timestamp = new Date().getTime(); 
@@ -300,7 +559,7 @@
             } catch (error) {
                 console.error(error);
                 const statusEl = document.getElementById('sync-status');
-                statusEl.innerText = "🔴 خطأ في قراءة البيانات من الملف";
+                statusEl.innerText = "🔴 خطأ في معالجة البيانات";
                 statusEl.style.color = "#ef4444";
             }
         };
@@ -340,18 +599,14 @@
                 card.style.borderRightColor = p.color;
                 
                 card.innerHTML = `
-                    <span style="font-size:0.9rem; color:#fbbf24; margin-left:6px; font-weight:bold;">#${index+1}</span>
-                    <div class="player-dot" style="background:${p.color}; margin-left:6px; box-shadow:none;">${p.id}</div>
+                    <span style="font-size:clamp(0.75rem, 2vw, 0.9rem); color:#fbbf24; margin-left:6px; font-weight:bold;">#${index+1}</span>
+                    <div class="player-dot" style="background:${p.color}; margin-left:6px; box-shadow:none; width:clamp(14px, 3vw, 18px); height:clamp(14px, 3vw, 18px);"></div>
                     <span class="leader-info"><b>${p.name}</b></span>
-                    <span style="color:#94a3b8; font-size:0.75rem;">(مربع ${p.pos})</span>
+                    <span style="color:#94a3b8; font-size:clamp(0.65rem, 1.5vw, 0.75rem);">(مربع ${p.pos})</span>
                 `;
                 list.appendChild(card);
             });
         }
-
-        initBoard();
-        fetchSheetData(); 
-        setInterval(fetchSheetData, 3000); 
     </script>
 </body>
 </html>
