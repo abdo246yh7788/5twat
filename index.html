@@ -383,76 +383,12 @@
     <div id="custom-tooltip" class="custom-tooltip"></div>
 
     <script type="module">
-        // 🌟 إعدادات Firebase السحابية لمزامنة المجموعات 🌟
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =========================================================================
-        // ⚠️ مهم جداً لمستخدمي GitHub Pages ⚠️
-        // لكي تعمل قاعدة البيانات مجاناً على رابطك الخاص، قم بإنشاء مشروع في Firebase
-        // ثم انسخ الـ config الخاص بك واستبدل الرمز {} بالأسفل بإعداداتك.
-        // =========================================================================
-        let firebaseConfig = {};
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            } else {
-                // ضع إعداداتك هنا إذا كنت ستنشره على GitHub
-                firebaseConfig = {}; 
-            }
-        } catch (e) {
-            console.error("Firebase Config Error:", e);
-        }
-
-        let isDbConnected = false;
-        let groupsDocRef;
-        let db;
-
-        if (Object.keys(firebaseConfig).length > 0) {
-            try {
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                db = getFirestore(app);
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'saed-group-sync-app';
-                
-                // المسار الخاص بحفظ نقاط المجموعات للجميع
-                groupsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'main_scores');
-
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Auth error", error);
-                    }
-                };
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        isDbConnected = true;
-                        listenToGroupsData(); // بدء الاستماع للتغييرات السحابية
-                    }
-                });
-
-                initAuth();
-            } catch (error) {
-                console.error("Firebase Setup Error:", error);
-            }
-        } else {
-            // رسالة تظهر في حال عدم وجود إعدادات Firebase
-            document.getElementById('grp-sync-status').innerText = "⚠️ سيتم حفظ النقاط محلياً فقط (تأكد من إضافة إعدادات Firebase للمزامنة)";
-            document.getElementById('grp-sync-status').style.color = "#fbbf24";
-            document.getElementById('grp-sync-status').style.display = "block";
-            // استخدم البيانات المحلية كبديل
-            initGroupManualData();
-        }
-
         // ==========================================================
-        // باقي كود الواجهة والوظائف الأساسية
+        // 1. التعريفات والتأسيس (مرفوعة للأعلى لمنع أي تعارض برمجي)
         // ==========================================================
         const sparksContainer = document.getElementById('sparks-container');
         const sparkCount = window.innerWidth <= 768 ? 20 : 40; 
@@ -487,42 +423,104 @@
         let grpColors = ["#f43f5e", "#0ea5e9", "#10b981", "#ec4899"]; 
         let grpAssignedColors = []; 
         
-        // البيانات الافتراضية
-        let groupManualData = [
+        // جلب البيانات من الذاكرة المحلية لضمان عمل الموقع حتى لو لم تكن السحابة متوفرة
+        let groupManualData = JSON.parse(localStorage.getItem('saed_groups')) || [
             { name: "المجموعة الأولى", points: 0 },
             { name: "المجموعة الثانية", points: 0 },
             { name: "المجموعة الثالثة", points: 0 },
             { name: "المجموعة الرابعة", points: 0 }
         ];
 
-        // 🌟 وظيفة الاستماع لقاعدة البيانات السحابية 🌟
+        // ==========================================================
+        // 2. إعداد قاعدة البيانات السحابية
+        // ==========================================================
+        let firebaseConfig = {};
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch (e) {
+            console.error("Firebase Config Error:", e);
+        }
+
+        let isDbConnected = false;
+        let groupsDocRef;
+        let db;
+
+        if (Object.keys(firebaseConfig).length > 0) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                db = getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'saed-group-sync-app';
+                
+                groupsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'main_scores');
+
+                const initAuth = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Auth error", error);
+                    }
+                };
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        isDbConnected = true;
+                        listenToGroupsData(); 
+                    }
+                });
+
+                initAuth();
+            } catch (error) {
+                console.error("Firebase Setup Error:", error);
+            }
+        } else {
+            setTimeout(() => {
+                const statusEl = document.getElementById('grp-sync-status');
+                if(statusEl) {
+                    statusEl.innerText = "⚠️ يتم الحفظ محلياً (تأكد من إعداد Firebase للمزامنة السحابية)";
+                    statusEl.style.color = "#fbbf24";
+                    statusEl.style.display = "block";
+                }
+            }, 1000);
+        }
+
         function listenToGroupsData() {
             onSnapshot(groupsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if(data && data.groups) {
                         groupManualData = data.groups;
-                        initGroupManualData(); // تحديث الواجهة عند أي تغيير سحابي
+                        initGroupManualData(); 
                         
-                        document.getElementById('grp-sync-status').innerText = `🟢 متصل بالسحابة (${new Date().toLocaleTimeString()})`;
-                        document.getElementById('grp-sync-status').style.color = '#10b981';
-                        document.getElementById('grp-sync-status').style.display = 'block';
+                        const statusEl = document.getElementById('grp-sync-status');
+                        if (statusEl) {
+                            statusEl.innerText = `🟢 متصل بالسحابة (${new Date().toLocaleTimeString()})`;
+                            statusEl.style.color = '#10b981';
+                            statusEl.style.display = 'block';
+                        }
                     }
                 } else {
-                    // إذا لم تكن البيانات موجودة بالسحابة بعد، نقوم بإنشائها
                     saveGroupSettingsToDb(groupManualData);
                 }
             }, (error) => {
                 console.error("Listen error", error);
-                document.getElementById('grp-sync-status').innerText = "🔴 خطأ في الاتصال بالسحابة";
-                document.getElementById('grp-sync-status').style.color = "#ef4444";
-                document.getElementById('grp-sync-status').style.display = 'block';
+                const statusEl = document.getElementById('grp-sync-status');
+                if (statusEl) {
+                    statusEl.innerText = "🔴 خطأ في الاتصال بالسحابة";
+                    statusEl.style.color = "#ef4444";
+                    statusEl.style.display = 'block';
+                }
             });
         }
 
         async function saveGroupSettingsToDb(data) {
             if(!isDbConnected) {
-                // حفظ محلي في حال غياب السحابة
                 localStorage.setItem('saed_groups', JSON.stringify(data));
                 initGroupManualData();
                 return;
@@ -534,6 +532,9 @@
             }
         }
 
+        // ==========================================================
+        // 3. دوال التطبيق والواجهة الأساسية (مرتبطة بالـ Window)
+        // ==========================================================
         function getColIndex(letter) {
             let column = 0; let length = letter.length;
             for (let i = 0; i < length; i++) {
@@ -548,7 +549,7 @@
         function getColor(i) { return `hsl(${(i * 137) % 360}, 65%, 50%)`; }
 
         let tooltipTimeout;
-        function showTooltip(e, text, element) {
+        window.showTooltip = function(e, text, element) {
             e.stopPropagation();
             const tooltip = document.getElementById('custom-tooltip');
             tooltip.innerText = text;
@@ -587,7 +588,6 @@
 
         let indSyncInterval; 
 
-        // 🌟 ربط الدوال بواجهة المستخدم (ضروري لأننا نستخدم module) 🌟
         window.startIndividual = function() {
             const landing = document.getElementById('landing-page');
             const indBoard = document.getElementById('individual-board');
@@ -710,7 +710,7 @@
             for (let i = 0; i < indNames.length; i++) {
                 if (indPositions[i] > 0) {
                     const dot = document.createElement('div'); dot.className = 'player-dot'; dot.style.background = getColor(i); 
-                    dot.onclick = function(e) { showTooltip(e, indNames[i], this); }; 
+                    dot.onclick = function(e) { window.showTooltip(e, indNames[i], this); }; 
                     const ts = document.getElementById(`ind-h-${indPositions[i]}`); if(ts) ts.appendChild(dot);
                 }
             }
@@ -837,9 +837,7 @@
                 groupManualData[i].points = ptsIn;
             }
             
-            // 🌟 الدالة السحرية لإرسال التعديلات للقاعدة السحابية 🌟
             saveGroupSettingsToDb(groupManualData);
-            
             grpGameOver = false; 
             document.getElementById('group-settings-modal').style.display = 'none';
         };
@@ -850,7 +848,7 @@
                 if (grpPositions[i] > 0) {
                     const dot = document.createElement('div'); dot.className = 'group-dot'; 
                     dot.style.background = grpAssignedColors[i]; 
-                    dot.onclick = function(e) { showTooltip(e, `${grpNames[i]} (${grpPoints[i]} نقطة)`, this); }; 
+                    dot.onclick = function(e) { window.showTooltip(e, `${grpNames[i]} (${grpPoints[i]} نقطة)`, this); }; 
                     const ts = document.getElementById(`grp-h-${grpPositions[i]}`); if(ts) ts.appendChild(dot);
                 }
             }
@@ -871,10 +869,10 @@
             });
         }
 
-        window.onload = function() {
-            // ملاحظة: تهيئة الجماعي تتم الآن عبر دالة listenToGroupsData الخاصة بقاعدة البيانات
-            fetchIndData();        
-        }
+        // تهيئة فورية لضمان عمل الموقع لحظة فتحه
+        initGroupManualData(); 
+        fetchIndData();        
+
     </script>
 </body>
 </html>
