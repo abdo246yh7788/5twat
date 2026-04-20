@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>صاعــــــــد - بوابة الدخول</title>
+    <!-- 🌟 استدعاء مكتبة MQTT 🌟 -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <style>
         * { box-sizing: border-box; }
 
@@ -297,7 +299,7 @@
     <div id="group-board" class="game-board">
         <div class="sidebar">
             <h2>ترتيب المجموعات المباشر</h2>
-            <div id="grp-sync-status" class="sync-status">⏳ جاري الاتصال بقاعدة البيانات...</div>
+            <div id="grp-sync-status" class="sync-status" style="display:none;">⏳ جاري الاتصال بسيرفر المزامنة...</div>
             <div id="grp-leaders-list" class="leaders-list"></div>
         </div>
         <div class="main-content">
@@ -382,13 +384,9 @@
     <!-- 🌟 عنصر الاسم المنبثق (يظهر عند الضغط) 🌟 -->
     <div id="custom-tooltip" class="custom-tooltip"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         // ==========================================================
-        // 1. التعريفات والتأسيس (مرفوعة للأعلى لمنع أي تعارض برمجي)
+        // 1. التعريفات والتأسيس
         // ==========================================================
         const sparksContainer = document.getElementById('sparks-container');
         const sparkCount = window.innerWidth <= 768 ? 20 : 40; 
@@ -423,7 +421,7 @@
         let grpColors = ["#f43f5e", "#0ea5e9", "#10b981", "#ec4899"]; 
         let grpAssignedColors = []; 
         
-        // جلب البيانات من الذاكرة المحلية لضمان عمل الموقع حتى لو لم تكن السحابة متوفرة
+        // جلب البيانات من الذاكرة المحلية كقيمة ابتدائية سريعة
         let groupManualData = JSON.parse(localStorage.getItem('saed_groups')) || [
             { name: "المجموعة الأولى", points: 0 },
             { name: "المجموعة الثانية", points: 0 },
@@ -432,108 +430,71 @@
         ];
 
         // ==========================================================
-        // 2. إعداد قاعدة البيانات السحابية
+        // 2. إعدادات السيرفر العام (MQTT) للمزامنة اللحظية والمجانية
         // ==========================================================
-        let firebaseConfig = {};
+        const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
+        // تشفير الـ Topic ليكون خاصاً بموقعك فقط (باستخدام ID الإكسل كمعرف سري)
+        const syncTopic = 'saed_app/groups/' + SHEET_ID; 
+
+        let mqttClient;
         try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch (e) {
-            console.error("Firebase Config Error:", e);
-        }
+            mqttClient = mqtt.connect(brokerUrl);
 
-        let isDbConnected = false;
-        let groupsDocRef;
-        let db;
-
-        if (Object.keys(firebaseConfig).length > 0) {
-            try {
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                db = getFirestore(app);
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'saed-group-sync-app';
-                
-                groupsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'main_scores');
-
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Auth error", error);
-                    }
-                };
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        isDbConnected = true;
-                        listenToGroupsData(); 
-                    }
-                });
-
-                initAuth();
-            } catch (error) {
-                console.error("Firebase Setup Error:", error);
-            }
-        } else {
-            setTimeout(() => {
-                const statusEl = document.getElementById('grp-sync-status');
-                if(statusEl) {
-                    statusEl.innerText = "⚠️ يتم الحفظ محلياً (تأكد من إعداد Firebase للمزامنة السحابية)";
-                    statusEl.style.color = "#fbbf24";
-                    statusEl.style.display = "block";
-                }
-            }, 1000);
-        }
-
-        function listenToGroupsData() {
-            onSnapshot(groupsDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if(data && data.groups) {
-                        groupManualData = data.groups;
-                        initGroupManualData(); 
-                        
+            mqttClient.on('connect', function () {
+                console.log('Connected to MQTT Public Sync Server');
+                mqttClient.subscribe(syncTopic, function (err) {
+                    if (!err) {
                         const statusEl = document.getElementById('grp-sync-status');
-                        if (statusEl) {
-                            statusEl.innerText = `🟢 متصل بالسحابة (${new Date().toLocaleTimeString()})`;
+                        if(statusEl) {
+                            statusEl.innerText = `🟢 متصل بسيرفر المزامنة (${new Date().toLocaleTimeString()})`;
                             statusEl.style.color = '#10b981';
                             statusEl.style.display = 'block';
                         }
                     }
-                } else {
-                    saveGroupSettingsToDb(groupManualData);
+                });
+            });
+
+            mqttClient.on('message', function (topic, message) {
+                if (topic === syncTopic) {
+                    try {
+                        const data = JSON.parse(message.toString());
+                        if (data && Array.isArray(data)) {
+                            groupManualData = data;
+                            initGroupManualData(); // تحديث الخريطة والواجهة بالبيانات الجديدة القادمة من السيرفر
+                        }
+                    } catch (e) {
+                        console.error("Error parsing MQTT data", e);
+                    }
                 }
-            }, (error) => {
-                console.error("Listen error", error);
+            });
+
+            mqttClient.on('error', function(err) {
+                console.error('MQTT Sync Error:', err);
                 const statusEl = document.getElementById('grp-sync-status');
-                if (statusEl) {
-                    statusEl.innerText = "🔴 خطأ في الاتصال بالسحابة";
-                    statusEl.style.color = "#ef4444";
+                if(statusEl) {
+                    statusEl.innerText = "🔴 خطأ في الاتصال بسيرفر المزامنة (العمل محلياً)";
+                    statusEl.style.color = "#fbbf24";
                     statusEl.style.display = 'block';
                 }
             });
+        } catch (e) {
+            console.error("MQTT Initialization Error", e);
         }
 
-        async function saveGroupSettingsToDb(data) {
-            if(!isDbConnected) {
-                localStorage.setItem('saed_groups', JSON.stringify(data));
-                initGroupManualData();
-                return;
-            }
-            try {
-                await setDoc(groupsDocRef, { groups: data });
-            } catch (error) {
-                console.error("Save error", error);
+        function saveGroupSettingsToCloud(data) {
+            // حفظ محلي لضمان عدم ضياع البيانات
+            localStorage.setItem('saed_groups', JSON.stringify(data));
+            
+            // إرسال البيانات للسيرفر العام والمزامنة فوراً مع خاصية Retain
+            if (mqttClient && mqttClient.connected) {
+                mqttClient.publish(syncTopic, JSON.stringify(data), { retain: true });
+            } else {
+                initGroupManualData(); // في حال انقطاع النت يتحدث محلياً
             }
         }
 
         // ==========================================================
-        // 3. دوال التطبيق والواجهة الأساسية (مرتبطة بالـ Window)
+        // 3. دوال التطبيق والواجهة الأساسية
         // ==========================================================
         function getColIndex(letter) {
             let column = 0; let length = letter.length;
@@ -549,7 +510,7 @@
         function getColor(i) { return `hsl(${(i * 137) % 360}, 65%, 50%)`; }
 
         let tooltipTimeout;
-        window.showTooltip = function(e, text, element) {
+        function showTooltip(e, text, element) {
             e.stopPropagation();
             const tooltip = document.getElementById('custom-tooltip');
             tooltip.innerText = text;
@@ -588,7 +549,7 @@
 
         let indSyncInterval; 
 
-        window.startIndividual = function() {
+        function startIndividual() {
             const landing = document.getElementById('landing-page');
             const indBoard = document.getElementById('individual-board');
             landing.style.transform = 'scale(1.1)'; landing.style.opacity = '0';
@@ -600,9 +561,9 @@
                     if(indGameOver) document.getElementById('ind-victory-box').style.display = 'block';
                 }, 50);
             }, 800);
-        };
+        }
 
-        window.startGroup = function() {
+        function startGroup() {
             const landing = document.getElementById('landing-page');
             const grpBoard = document.getElementById('group-board');
             landing.style.transform = 'scale(1.1)'; landing.style.opacity = '0';
@@ -614,9 +575,9 @@
                     if(grpGameOver) document.getElementById('grp-victory-box').style.display = 'block';
                 }, 50);
             }, 800);
-        };
+        }
 
-        window.goBackToHome = function(type) {
+        function goBackToHome(type) {
             const landing = document.getElementById('landing-page');
             const board = type === 'individual' ? document.getElementById('individual-board') : document.getElementById('group-board');
             if(type === 'individual') clearInterval(indSyncInterval);
@@ -625,7 +586,7 @@
                 board.style.display = 'none'; landing.style.display = 'flex';
                 setTimeout(() => { landing.style.opacity = '1'; landing.style.transform = 'scale(1)'; }, 50);
             }, 800);
-        };
+        }
 
         function fetchIndData() {
             const script = document.createElement('script');
@@ -710,7 +671,7 @@
             for (let i = 0; i < indNames.length; i++) {
                 if (indPositions[i] > 0) {
                     const dot = document.createElement('div'); dot.className = 'player-dot'; dot.style.background = getColor(i); 
-                    dot.onclick = function(e) { window.showTooltip(e, indNames[i], this); }; 
+                    dot.onclick = function(e) { showTooltip(e, indNames[i], this); }; 
                     const ts = document.getElementById(`ind-h-${indPositions[i]}`); if(ts) ts.appendChild(dot);
                 }
             }
@@ -781,13 +742,13 @@
             }
         }
 
-        window.openPasswordModal = function() {
+        function openPasswordModal() {
             document.getElementById('pass-error').style.display = 'none';
             document.getElementById('admin-pass-input').value = '';
             document.getElementById('password-modal').style.display = 'flex';
-        };
+        }
 
-        window.verifyPassword = function() {
+        function verifyPassword() {
             const pass = document.getElementById('admin-pass-input').value;
             if (pass === '11223') {
                 document.getElementById('password-modal').style.display = 'none';
@@ -795,7 +756,7 @@
             } else {
                 document.getElementById('pass-error').style.display = 'block';
             }
-        };
+        }
 
         function openGroupSettings() {
             const container = document.getElementById('group-settings-container');
@@ -818,18 +779,18 @@
             document.getElementById('group-settings-modal').style.display = 'flex';
         }
 
-        window.changePts = function(index, amount) {
+        function changePts(index, amount) {
             const input = document.getElementById(`grp-pts-in-${index}`);
             let current = parseInt(input.value) || 0;
             input.value = current + amount;
-        };
+        }
         
-        window.updatePts = function(index) {
+        function updatePts(index) {
             const input = document.getElementById(`grp-pts-in-${index}`);
             if(input.value === '' || isNaN(input.value)) input.value = 0;
-        };
+        }
 
-        window.saveGroupSettings = function() {
+        function saveGroupSettings() {
             for (let i = 0; i < 4; i++) {
                 const nameIn = document.getElementById(`grp-name-in-${i}`).value.trim();
                 const ptsIn = parseInt(document.getElementById(`grp-pts-in-${i}`).value) || 0;
@@ -837,10 +798,10 @@
                 groupManualData[i].points = ptsIn;
             }
             
-            saveGroupSettingsToDb(groupManualData);
+            saveGroupSettingsToCloud(groupManualData);
             grpGameOver = false; 
             document.getElementById('group-settings-modal').style.display = 'none';
-        };
+        }
 
         function refreshGroupUI() {
             for (let i = 1; i <= totalSquares; i++) { const h = document.getElementById(`grp-h-${i}`); if (h) h.innerHTML = ''; }
@@ -848,7 +809,7 @@
                 if (grpPositions[i] > 0) {
                     const dot = document.createElement('div'); dot.className = 'group-dot'; 
                     dot.style.background = grpAssignedColors[i]; 
-                    dot.onclick = function(e) { window.showTooltip(e, `${grpNames[i]} (${grpPoints[i]} نقطة)`, this); }; 
+                    dot.onclick = function(e) { showTooltip(e, `${grpNames[i]} (${grpPoints[i]} نقطة)`, this); }; 
                     const ts = document.getElementById(`grp-h-${grpPositions[i]}`); if(ts) ts.appendChild(dot);
                 }
             }
@@ -869,10 +830,10 @@
             });
         }
 
-        // تهيئة فورية لضمان عمل الموقع لحظة فتحه
-        initGroupManualData(); 
-        fetchIndData();        
-
+        window.onload = function() {
+            initGroupManualData(); 
+            fetchIndData();        
+        }
     </script>
 </body>
 </html>
