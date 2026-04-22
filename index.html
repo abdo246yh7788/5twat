@@ -163,6 +163,13 @@
         .criteria-pts { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
         .close-modal-btn { position: absolute; top: 15px; left: 15px; background: transparent; color: #ef4444; border: none; font-size: 1.5rem; cursor: pointer; line-height: 1; }
 
+        /* أزرار التبديل بين الفردي والجماعي */
+        .tab-btn { background: #334155; color: #f8fafc; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; font-size: 1rem; }
+        .tab-btn.active-ind { background: var(--accent-gold); color: #000; }
+        .tab-btn.active-grp { background: #818cf8; color: #000; }
+        .criteria-tab-content { display: none; animation: fadeInUP 0.4s ease-out forwards; }
+        .criteria-tab-content.active { display: block; }
+
         /* 🌟 ستايل الاسم المنبثق (الـ Tooltip) 🌟 */
         .custom-tooltip {
             position: fixed; background: rgba(15, 23, 42, 0.95); color: #f8fafc; border: 1px solid var(--accent-gold);
@@ -299,41 +306,92 @@
     
     <!-- نافذة بنود التقييم -->
     <div id="criteria-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); z-index:3000; justify-content:center; align-items:center; padding:20px; backdrop-filter:blur(5px);">
-        <div class="criteria-content" style="background: var(--card-bg); border: 2px solid var(--accent-gold); border-radius: 15px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 25px; color: var(--text-main); box-shadow: 0 10px 30px rgba(0,0,0,0.7); position: relative;">
+        <div id="criteria-modal-content" class="criteria-content" style="background: var(--card-bg); border: 2px solid var(--accent-gold); border-radius: 15px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 25px; color: var(--text-main); box-shadow: 0 10px 30px rgba(0,0,0,0.7); position: relative; transition: border-color 0.3s ease;">
             <button class="close-modal-btn" onclick="document.getElementById('criteria-modal').style.display='none'">✖</button>
-            <h2>بنود التقييم الفردية للطلاب</h2>
             
-            <div class="criteria-section">
-                <h3>📖 البنود القرآنية</h3>
-                <ul class="criteria-list">
-                    <li><span>حضور</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>تثبيت</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>حفظ</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>مراجعة</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>السمت (الشماغ)</span> <span class="criteria-pts">3 نقاط</span></li>
-                    <li><span>الحضور المبكر</span> <span class="criteria-pts">2 نقاط</span></li>
-                    <li><span>الانتهاء من ورد الأسبوع</span> <span class="criteria-pts">10 نقاط</span></li>
-                </ul>
+            <!-- أزرار التبديل -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+                <button id="tab-btn-ind" class="tab-btn active-ind" onclick="switchCriteriaTab('ind')">الفردي</button>
+                <button id="tab-btn-grp" class="tab-btn" onclick="switchCriteriaTab('grp')">الجماعي</button>
             </div>
-            <div class="criteria-section">
-                <h3>🌟 البنود القيمية</h3>
-                <ul class="criteria-list">
-                    <li><span>قراءة</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>سماع</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>مشاركة فائدة في الدرس</span> <span class="criteria-pts">3 نقاط</span></li>
-                    <li><span>إحضار الكناشة</span> <span class="criteria-pts">3 نقاط</span></li>
-                    <li><span>تلخيص الدرس</span> <span class="criteria-pts">4 نقاط</span></li>
-                    <li><span>الحضور بزي طالب العلم</span> <span class="criteria-pts">5 نقاط</span></li>
-                </ul>
+
+            <!-- 🥇 بنود الفردي 🥇 -->
+            <div id="criteria-ind" class="criteria-tab-content active">
+                <h2 style="color: var(--accent-gold); text-align: center; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">بنود التقييم الفردية</h2>
+                
+                <div class="criteria-section">
+                    <h3>📖 البنود القرآنية</h3>
+                    <ul class="criteria-list">
+                        <li><span>حضور</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>تثبيت</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>حفظ</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>مراجعة</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>السمت (الشماغ)</span> <span class="criteria-pts">3 نقاط</span></li>
+                        <li><span>الحضور المبكر</span> <span class="criteria-pts">2 نقاط</span></li>
+                        <li><span>الانتهاء من ورد الأسبوع</span> <span class="criteria-pts">10 نقاط</span></li>
+                    </ul>
+                </div>
+                <div class="criteria-section">
+                    <h3>🌟 البنود القيمية</h3>
+                    <ul class="criteria-list">
+                        <li><span>قراءة</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>سماع</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>مشاركة فائدة في الدرس</span> <span class="criteria-pts">3 نقاط</span></li>
+                        <li><span>إحضار الكناشة</span> <span class="criteria-pts">3 نقاط</span></li>
+                        <li><span>تلخيص الدرس</span> <span class="criteria-pts">4 نقاط</span></li>
+                        <li><span>الحضور بزي طالب العلم</span> <span class="criteria-pts">5 نقاط</span></li>
+                    </ul>
+                </div>
+                <div class="criteria-section">
+                    <h3>📚 البنود العلمية (بنود اللجنة)</h3>
+                    <ul class="criteria-list">
+                        <li><span>حضور الدرس</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>اختبار</span> <span class="criteria-pts">5 نقاط</span></li>
+                        <li><span>حل الاستبيان</span> <span class="criteria-pts">5 نقاط</span></li>
+                    </ul>
+                </div>
             </div>
-            <div class="criteria-section">
-                <h3>📚 البنود العلمية (بنود اللجنة)</h3>
-                <ul class="criteria-list">
-                    <li><span>حضور الدرس</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>اختبار</span> <span class="criteria-pts">5 نقاط</span></li>
-                    <li><span>حل الاستبيان</span> <span class="criteria-pts">5 نقاط</span></li>
-                </ul>
+
+            <!-- 👑 بنود الجماعي 👑 -->
+            <div id="criteria-grp" class="criteria-tab-content">
+                <h2 style="color: #818cf8; text-align: center; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">بنود التقييم الجماعية</h2>
+
+                <div class="criteria-section" style="border-right-color: #818cf8;">
+                    <h3 style="color: #a5b4fc;">🌟 البنود القيمية</h3>
+                    <ul class="criteria-list">
+                        <li><span>مشهد عن الأخلاق الحسنة</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">5 نقاط</span></li>
+                        <li><span>كلمة أسبوعية</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">5 نقاط</span></li>
+                    </ul>
+                </div>
+
+                <div class="criteria-section" style="border-right-color: #818cf8;">
+                    <h3 style="color: #a5b4fc;">📚 البنود العلمية</h3>
+                    <ul class="criteria-list">
+                        <li><span>أفضل خارطة ذهنية</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">5 نقاط</span></li>
+                    </ul>
+                </div>
+
+                <div class="criteria-section" style="border-right-color: #818cf8;">
+                    <h3 style="color: #a5b4fc;">🤝 البنود الاجتماعية</h3>
+                    <ul class="criteria-list">
+                        <li><span>الضيافة (يومي)</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">1 - 5 نقاط</span></li>
+                        <li><span>جريدة الأسبوع (أسبوعي)</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">1 - 5 نقاط</span></li>
+                        <li><span>ترتيب المسجد بعد الحلقة (يومي)</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">1 - 5 نقاط</span></li>
+                        <li><span>حضور يوم الخميس</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">1 - 5 نقاط</span></li>
+                    </ul>
+                </div>
+
+                <div class="criteria-section" style="border-right-color: #818cf8;">
+                    <h3 style="color: #a5b4fc;">🏆 المسابقات الكبرى (كرة، ثقافية، طائرة)</h3>
+                    <ul class="criteria-list">
+                        <li><span>المركز الأول</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">50 نقطة</span></li>
+                        <li><span>المركز الثاني</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">40 نقطة</span></li>
+                        <li><span>المركز الثالث</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">30 نقطة</span></li>
+                        <li><span>المركز الرابع</span> <span class="criteria-pts" style="background: rgba(129, 140, 248, 0.2); color: #818cf8;">20 نقطة</span></li>
+                    </ul>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -346,11 +404,11 @@
         // ==========================================================
         const SHEET_ID = "1QZ6_ZPyBkxycL7nk3JaDOyOGEQiSCyGhZrnCCXyUp78"; 
         
-        // إعدادات الفردي (عادت كالسابق بالضبط)
+        // إعدادات الفردي (عادت كالسابق بالضبط وقوية)
         const IND_GID = "1952609688"; 
         const IND_NAME_COL_LETTER = 'A';    
         const IND_POINTS_COL_LETTER = 'L';  
-        const IND_POINTS_PER_SQUARE = 13;      
+        const IND_POINTS_PER_SQUARE = 15;   // 🌟 تم التعديل هنا: 15 نقطة لكل مربع 🌟   
         
         // 🌟 إعدادات التنافس الجماعي 🌟
         const GRP_POINTS_PER_SQUARE = 15;   // كل 15 نقطة مربع
@@ -375,6 +433,7 @@
         let indGameOver = false;
         let indPositions = Array(totalPlayers).fill(0);
         let indNames = Array(totalPlayers).fill("").map((_, i) => `طالب ${i+1}`);
+        let indPoints = Array(totalPlayers).fill(0); // 🌟 مصفوفة جديدة لحفظ نقاط الفردي
 
         let grpGameOver = false;
         let grpPositions = []; 
@@ -481,7 +540,7 @@
         };
 
         // ==========================================================
-        // 🏃‍♂️ جلب وعرض التنافس الفردي (النسخة المستقرة الأصلية)
+        // 🏃‍♂️ جلب وعرض التنافس الفردي (النسخة المستقرة الأصلية القوية)
         // ==========================================================
         function fetchIndData() {
             const script = document.createElement('script');
@@ -498,28 +557,40 @@
 
         window.processDataInd = function(data) {
             try {
-                if (data && data.status === 'error') {
-                    throw new Error(data.errors[0].detailed_message || data.errors[0].message);
-                }
+                if (data && data.status === 'error') throw new Error(data.errors[0].message);
                 if (!data || !data.table || !data.table.rows) throw new Error("لا يمكن قراءة البيانات");
 
-                const rows = data.table.rows; let newNames = []; let newPositions = []; let winnerFound = null;
+                const rows = data.table.rows; 
+                let newNames = []; let newPositions = []; let newPoints = []; let winnerFound = null;
+
                 for (let i = 0; i < rows.length; i++) {
                     if (newNames.length >= totalPlayers) break; 
                     const row = rows[i];
+                    // البحث بالطريقة الأصلية والمستقرة عن طريق الفهرس المباشر A و L
                     if (!row || !row.c || !row.c[IND_NAME_IDX]) continue; 
-                    const nameVal = row.c[IND_NAME_IDX].v;
-                    if (!nameVal || String(nameVal).trim() === "0" || String(nameVal).trim() === "الاسم" || String(nameVal).trim().toLowerCase() === "false" || String(nameVal).trim().toLowerCase() === "true") continue;
-                    let points = (row.c[IND_POS_IDX] && row.c[IND_POS_IDX].v !== null) ? parseFloat(row.c[IND_POS_IDX].v) : 0;
+                    
+                    let nameCell = row.c[IND_NAME_IDX];
+                    let nameVal = nameCell ? (nameCell.v !== null && nameCell.v !== undefined ? String(nameCell.v) : (nameCell.f ? String(nameCell.f) : "")) : "";
+                    nameVal = nameVal.trim();
+                    
+                    if (nameVal === "" || nameVal === "0" || nameVal.includes("الاسم") || nameVal.toLowerCase() === "false" || nameVal.toLowerCase() === "true") continue;
+                    
+                    let pointsCell = row.c[IND_POS_IDX];
+                    let points = 0;
+                    if (pointsCell) {
+                        points = parseFloat(pointsCell.v !== null && pointsCell.v !== undefined ? pointsCell.v : (pointsCell.f || 0));
+                    }
                     if(isNaN(points)) points = 0;
+                    
                     let pos = Math.floor(points / IND_POINTS_PER_SQUARE);
                     if (pos < 0) pos = 0; if (pos > totalSquares) pos = totalSquares;
-                    newNames.push(nameVal.toString().trim()); newPositions.push(pos);
-                    if (pos === totalSquares && !indGameOver) winnerFound = nameVal.toString().trim();
-                }
-                if (newNames.length > 0) {
-                    indNames = newNames; indPositions = newPositions; 
                     
+                    newNames.push(nameVal); newPositions.push(pos); newPoints.push(points); // 🌟 حفظ النقاط
+                    if (pos === totalSquares && !indGameOver) winnerFound = nameVal;
+                }
+                
+                if (newNames.length > 0) {
+                    indNames = newNames; indPositions = newPositions; indPoints = newPoints; // 🌟 تحديث النقاط في الذاكرة
                     updateLandingIndHonor();
 
                     if(document.getElementById('individual-board').style.display === 'flex'){
@@ -543,8 +614,12 @@
 
         function updateLandingIndHonor() {
             const list = document.getElementById('ind-honors-list');
-            let stats = indPositions.map((pos, idx) => ({ name: indNames[idx], pos: pos }));
-            stats.sort((a, b) => b.pos - a.pos);
+            let stats = indPositions.map((pos, idx) => ({ name: indNames[idx], pos: pos, pts: indPoints[idx] }));
+            // الترتيب الأساسي على المربع ثم النقاط
+            stats.sort((a, b) => {
+                if (b.pos !== a.pos) return b.pos - a.pos;
+                return b.pts - a.pts; 
+            });
 
             list.innerHTML = "";
             for(let i=0; i<3; i++) {
@@ -554,7 +629,7 @@
                     <div class="honor-item">
                         <span class="honor-rank">${rankMedal}</span>
                         <span class="honor-name">${stats[i].name}</span>
-                        <span class="honor-score">مربع ${stats[i].pos}</span>
+                        <span class="honor-score">مربع ${stats[i].pos} (${stats[i].pts} نقطة)</span>
                     </div>
                 `;
             }
@@ -567,7 +642,8 @@
                 if (indPositions[i] > 0) {
                     const dot = document.createElement('div'); dot.className = 'player-dot'; dot.style.background = getColor(i); 
                     dot.innerText = i + 1;
-                    dot.onclick = function(e) { window.showTooltip(e, indNames[i], this); }; 
+                    // 🌟 إضافة إظهار النقاط عند لمس الدائرة في الفردي 🌟
+                    dot.onclick = function(e) { window.showTooltip(e, `${indNames[i]} (${indPoints[i]} نقطة)`, this); }; 
                     const ts = document.getElementById(`ind-h-${indPositions[i]}`); if(ts) ts.appendChild(dot);
                 }
             }
@@ -576,7 +652,7 @@
 
         function updateIndividualLeaderboard() {
             const list = document.getElementById('ind-leaders-list');
-            let stats = indPositions.map((pos, idx) => ({ id: idx + 1, name: indNames[idx], pos: pos, color: getColor(idx) }));
+            let stats = indPositions.map((pos, idx) => ({ id: idx + 1, name: indNames[idx], pos: pos, color: getColor(idx) })); // الترتيب الجانبي للمربع فقط
             stats.sort((a, b) => b.pos - a.pos); list.innerHTML = "";
             stats.forEach((p, index) => {
                 const card = document.createElement('div'); card.className = 'leader-card'; card.style.borderRightColor = p.color;
@@ -589,9 +665,7 @@
         // 👥 جلب وعرض التنافس الجماعي (من صفحة "الجماعي" - العمودين A و B)
         // ==========================================================
         function fetchGrpData() {
-            // 🌟 اسم الصفحة الجديدة
             const sheetName = encodeURIComponent('الجماعي');
-            // 🌟 استعلام صريح: نجلب العمود A (الاسم) والعمود B (النقاط) فقط
             const query = encodeURIComponent('SELECT A, B');
             
             const script = document.createElement('script');
@@ -613,9 +687,8 @@
 
                 const rows = data.table.rows; 
                 let tempGroups = [];
-                let colorIndex = 0; // 🌟 عداد لتوزيع الألوان الثابتة
+                let colorIndex = 0; 
 
-                // 🌟 لأننا طلبنا SELECT A, B فقط، فالعمود A سيكون ترتيبه دائماً [0] والعمود B سيكون ترتيبه دائماً [1] 🌟
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
                     if (!row || !row.c) continue; 
@@ -624,7 +697,6 @@
                     let val = nameCell ? (nameCell.v !== null && nameCell.v !== undefined ? String(nameCell.v) : (nameCell.f ? String(nameCell.f) : "")) : "";
                     val = val.trim();
                     
-                    // تخطي العناوين (كلمة "الاسم" أو "مجموع الدرجات") والأسطر الفارغة
                     if (val === "" || val.includes("مجموع الدرجات") || val === "الاسم" || val.toLowerCase() === "false" || val.toLowerCase() === "true") continue; 
                     
                     let pointsCell = row.c[1]; 
@@ -634,20 +706,17 @@
                     }
                     if (isNaN(pts)) pts = 0;
                     
-                    let pos = Math.floor(pts / GRP_POINTS_PER_SQUARE); // التقسيم على 15
+                    let pos = Math.floor(pts / GRP_POINTS_PER_SQUARE); 
                     if (pos < 0) pos = 0; if (pos > totalSquares) pos = totalSquares;
                     
-                    // 🌟 ربط اللون الثابت بالمجموعة بناءً على ترتيبها في ملف الإكسل قبل الفرز 🌟
                     let fixedColor = grpColors[colorIndex % grpColors.length];
                     colorIndex++;
 
                     tempGroups.push({ name: val, points: pts, pos: pos, color: fixedColor });
 
-                    // نكتفي بـ 4 مجموعات فقط
                     if (tempGroups.length >= 4) break;
                 }
 
-                // ترتيب المجموعات حسب النقاط من الأعلى للأقل لتظهر بالترتيب المباشر
                 tempGroups.sort((a, b) => b.points - a.points);
 
                 grpNames = []; grpPositions = []; grpPoints = []; grpAssignedColors = [];
@@ -657,8 +726,6 @@
                     grpNames.push(tempGroups[i].name);
                     grpPoints.push(tempGroups[i].points);
                     grpPositions.push(tempGroups[i].pos);
-                    
-                    // 🌟 نستخدم اللون الثابت المحفوظ لكل مجموعة مهما كان مركزها 🌟
                     grpAssignedColors.push(tempGroups[i].color); 
 
                     if(tempGroups[i].pos === totalSquares && !grpGameOver) winnerFound = tempGroups[i].name;
@@ -720,13 +787,31 @@
             grpPositions.forEach((pos, index) => {
                 const card = document.createElement('div'); card.className = 'leader-card'; card.style.borderRightColor = grpAssignedColors[index];
                 
-                let rankMedal = index === 0 ? '🥇' : index === 1 ? '🥈' : (index === 2 || index === 3) ? '🥉' : `#${index+1}`;
-                let rankColor = index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : (index === 2 || index === 3) ? '#b45309' : '#94a3b8';
+                let rankMedal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `🏅${index+1}`;
+                let rankColor = index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : index === 2 ? '#b45309' : '#94a3b8';
                 
-                card.innerHTML = `<div style="font-size:1.3rem; font-weight:bold; color:${rankColor}; width:35px; text-align:center; flex-shrink: 0;">${rankMedal}</div><div class="group-dot" style="background:${grpAssignedColors[index]}; margin: 0 12px; width:22px; height:22px; flex-shrink: 0; box-shadow:none; border-width:2px; border-radius:50%;"></div><div class="leader-info">${grpNames[index]}</div><div style="color:#c7d2fe; font-size:0.85rem; font-weight:bold; background:rgba(99,102,241,0.15); padding:4px 8px; border-radius:8px; white-space: nowrap; flex-shrink: 0;">مربع ${pos} | ${grpPoints[index]} نقطة</div>`;
+                card.innerHTML = `<div style="font-size:1.2rem; font-weight:bold; color:${rankColor}; min-width:40px; text-align:center; flex-shrink: 0; display:flex; justify-content:center; align-items:center; gap:2px;">${rankMedal}</div><div class="group-dot" style="background:${grpAssignedColors[index]}; margin: 0 10px; width:22px; height:22px; flex-shrink: 0; box-shadow:none; border-width:2px; border-radius:50%;"></div><div class="leader-info">${grpNames[index]}</div><div style="color:#c7d2fe; font-size:0.85rem; font-weight:bold; background:rgba(99,102,241,0.15); padding:4px 8px; border-radius:8px; white-space: nowrap; flex-shrink: 0;">مربع ${pos} | ${grpPoints[index]} نقطة</div>`;
                 list.appendChild(card);
             });
         }
+
+        // 🌟 التبديل بين بنود الفردي والجماعي 🌟
+        window.switchCriteriaTab = function(tab) {
+            document.getElementById('criteria-ind').classList.remove('active');
+            document.getElementById('criteria-grp').classList.remove('active');
+            document.getElementById('tab-btn-ind').classList.remove('active-ind');
+            document.getElementById('tab-btn-grp').classList.remove('active-grp');
+
+            if(tab === 'ind') {
+                document.getElementById('criteria-ind').classList.add('active');
+                document.getElementById('tab-btn-ind').classList.add('active-ind');
+                document.getElementById('criteria-modal-content').style.borderColor = 'var(--accent-gold)';
+            } else {
+                document.getElementById('criteria-grp').classList.add('active');
+                document.getElementById('tab-btn-grp').classList.add('active-grp');
+                document.getElementById('criteria-modal-content').style.borderColor = '#818cf8';
+            }
+        };
 
         window.onload = function() {
             fetchIndData();        
